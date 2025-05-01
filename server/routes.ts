@@ -5,6 +5,8 @@ import { linkedinAPI } from "./api/linkedinAPI";
 import { githubAPI } from "./api/githubAPI";
 import { googleDriveAPI } from "./api/googleDriveAPI";
 import { contactSubmissionsInsertSchema } from "@shared/schema";
+import { manuallyRefreshAll } from "./services/apiSyncService";
+import { adminConfig } from "./config";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -117,7 +119,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const cvUrl = await googleDriveAPI.getCV();
         // Redirect to the Google Drive file
-        return res.redirect(cvUrl);
+        return res.redirect(cvUrl.fileUrl);
       } catch (driveError) {
         console.error("Google Drive API error:", driveError);
         // Fall back to database if Google Drive API fails
@@ -132,6 +134,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Internal server error" });
     }
   });
+  
+  // Admin endpoints
+  if (adminConfig.allowManualRefresh) {
+    // Endpoint to manually refresh all external API data
+    app.post(`${apiPrefix}/admin/refresh`, async (req: Request, res: Response) => {
+      try {
+        const result = await manuallyRefreshAll();
+        return res.json(result);
+      } catch (error) {
+        console.error("Error manually refreshing data:", error);
+        return res.status(500).json({ message: "Error refreshing data" });
+      }
+    });
+  }
 
   const httpServer = createServer(app);
   return httpServer;
