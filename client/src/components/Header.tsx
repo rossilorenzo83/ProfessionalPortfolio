@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Menu, X } from "lucide-react";
 import { SECTION_IDS } from "@/lib/constants";
 import { useMobile } from "@/hooks/use-mobile";
+import { ThemeToggle } from "@/components/ui/theme-provider";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,13 +45,13 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           {!isMobile && (
-            <nav>
+            <nav className="flex items-center">
               <ul className="flex space-x-8">
                 {navItems.map((item) => (
                   <li key={item.label}>
                     <a 
                       href={item.href} 
-                      className="text-gray-600 hover:text-primary transition-colors"
+                      className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
                       onClick={() => {
                         const element = document.querySelector(item.href);
                         if (element) {
@@ -63,6 +64,9 @@ const Header = () => {
                   </li>
                 ))}
               </ul>
+              <div className="ml-6">
+                <ThemeToggle />
+              </div>
             </nav>
           )}
           
@@ -81,14 +85,14 @@ const Header = () => {
       
       {/* Mobile Navigation */}
       {isMobile && (
-        <div className={`${isOpen ? "block" : "hidden"} bg-white border-t`}>
+        <div className={`${isOpen ? "block" : "hidden"} bg-white dark:bg-gray-900 border-t dark:border-gray-800`}>
           <div className="container mx-auto px-4 py-3">
             <ul className="space-y-2">
               {navItems.map((item) => (
                 <li key={item.label}>
                   <a 
                     href={item.href} 
-                    className="block py-2 text-gray-600 hover:text-primary transition-colors"
+                    className="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
                     onClick={(e) => {
                       e.preventDefault();
                       closeMenu();
@@ -103,6 +107,12 @@ const Header = () => {
                 </li>
               ))}
             </ul>
+            <div className="mt-4 pb-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Toggle theme</span>
+                <ThemeToggle />
+              </div>
+            </div>
           </div>
         </div>
       )}
