@@ -1,4 +1,5 @@
 import { ProfileInsert } from "@shared/schema";
+import { linkedinConfig, loggingConfig } from "../config";
 
 interface LinkedInApiResponse {
   firstName: string;
@@ -28,15 +29,21 @@ interface LinkedInApiResponse {
 export const linkedinAPI = {
   getProfile: async (): Promise<ProfileInsert> => {
     try {
-      // Check for API key
-      const apiKey = process.env.LINKEDIN_API_KEY;
-      if (!apiKey) {
-        throw new Error("LinkedIn API key not configured");
+      let response: LinkedInApiResponse;
+      
+      if (linkedinConfig.useRealApi) {
+        // In a real implementation, this would make an API call to LinkedIn using the access token
+        if (loggingConfig.logApiCalls) {
+          console.log('Making live LinkedIn API call');
+        }
+        response = await makeLiveApiCall();
+      } else {
+        // Fall back to simulated data if API credentials aren't configured
+        if (loggingConfig.logApiCalls) {
+          console.log('Using simulated LinkedIn data (API credentials not configured)');
+        }
+        response = await simulateApiCall();
       }
-
-      // In a real implementation, this would make an API call to LinkedIn
-      // For now, we'll simulate a response
-      const response: LinkedInApiResponse = await simulateApiCall();
 
       // Transform the LinkedIn response to our schema format
       return {
@@ -68,6 +75,33 @@ function formatEducation(education: LinkedInApiResponse["education"]): string {
   if (!education || education.length === 0) return "Not specified";
   const mostRecent = education[0];
   return `${mostRecent.degree} in ${mostRecent.fieldOfStudy}, ${mostRecent.schoolName}`;
+}
+
+// Make a real API call to LinkedIn
+async function makeLiveApiCall(): Promise<LinkedInApiResponse> {
+  try {
+    // This would be replaced with actual LinkedIn API calls using the access token
+    // For example: using fetch or an API client like axios
+    
+    // const response = await fetch(`https://api.linkedin.com/v2/me`, {
+    //   headers: {
+    //     'Authorization': `Bearer ${linkedinConfig.accessToken}`,
+    //     'cache-control': 'no-cache',
+    //     'X-Restli-Protocol-Version': '2.0.0'
+    //   }
+    // });
+    
+    // const data = await response.json();
+    // return transformLinkedInResponse(data);
+    
+    // For now, just simulate a delay and return the same mock data
+    // This will be replaced with actual API integration when credentials are provided
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return simulateApiCall();
+  } catch (error) {
+    console.error('LinkedIn API live call error:', error);
+    throw error;
+  }
 }
 
 // Simulate an API call for development

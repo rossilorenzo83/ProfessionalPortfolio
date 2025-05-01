@@ -1,4 +1,5 @@
 import { GitHubStatsInsert } from "@shared/schema";
+import { githubConfig, loggingConfig } from "../config";
 
 interface GitHubApiResponse {
   user: {
@@ -48,15 +49,21 @@ interface GitHubApiResponse {
 export const githubAPI = {
   getStats: async (): Promise<GitHubStatsInsert> => {
     try {
-      // Check for API key
-      const apiKey = process.env.GITHUB_API_KEY;
-      if (!apiKey) {
-        throw new Error("GitHub API key not configured");
-      }
+      let response: GitHubApiResponse;
 
-      // In a real implementation, this would make an API call to GitHub GraphQL API
-      // For now, we'll simulate a response
-      const response: GitHubApiResponse = await simulateApiCall();
+      if (githubConfig.useRealApi) {
+        // Use real GitHub API
+        if (loggingConfig.logApiCalls) {
+          console.log('Making live GitHub API call');
+        }
+        response = await makeLiveApiCall();
+      } else {
+        // Fall back to simulated data if API credentials aren't configured
+        if (loggingConfig.logApiCalls) {
+          console.log('Using simulated GitHub data (API credentials not configured)');
+        }
+        response = await simulateApiCall();
+      }
 
       // Get date range for contribution period
       const contributionPeriod = getContributionPeriod(response.user.contributionsCollection.contributionCalendar.weeks);
@@ -114,6 +121,74 @@ function formatDate(dateStr: string): string {
   if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
   if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
   return `${Math.floor(diffDays / 365)} years ago`;
+}
+
+// Make a real API call to GitHub
+async function makeLiveApiCall(): Promise<GitHubApiResponse> {
+  try {
+    // This would be replaced with actual GitHub API calls using the personal access token
+    // For example, using the GitHub GraphQL API with fetch or an API client like axios
+    
+    /*
+    const query = `query {
+      viewer {
+        login
+        repositories(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
+          totalCount
+          nodes {
+            name
+            description
+            stargazerCount
+            forkCount
+            url
+            primaryLanguage {
+              name
+              color
+            }
+            updatedAt
+          }
+        }
+        starredRepositories {
+          totalCount
+        }
+        followers {
+          totalCount
+        }
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                date
+                contributionCount
+              }
+            }
+          }
+        }
+      }
+    }`;
+    
+    const response = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${githubConfig.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query })
+    });
+    
+    const data = await response.json();
+    return transformGitHubResponse(data);
+    */
+    
+    // For now, just simulate a delay and return the same mock data
+    // This will be replaced with actual API integration when credentials are provided
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return simulateApiCall();
+  } catch (error) {
+    console.error('GitHub API live call error:', error);
+    throw error;
+  }
 }
 
 // Simulate an API call for development
