@@ -36,7 +36,7 @@ const Header = () => {
   }, []);
 
   return (
-    <header className={`fixed top-0 w-full ${scrolled ? "bg-white bg-opacity-95 shadow-sm" : "bg-transparent"} z-50 transition-all duration-300`}>
+    <header className={`fixed top-0 w-full ${scrolled ? "bg-white dark:bg-gray-900 bg-opacity-95 dark:bg-opacity-95 shadow-sm dark:shadow-gray-800" : "bg-transparent"} z-50 transition-all duration-300`}>
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <a href={`#${SECTION_IDS.HERO}`} className="text-xl font-bold text-primary flex items-center space-x-2">
@@ -74,7 +74,7 @@ const Header = () => {
           {isMobile && (
             <button 
               onClick={toggleMenu} 
-              className="text-gray-600 focus:outline-none"
+              className="text-gray-600 dark:text-gray-300 focus:outline-none"
               aria-label={isOpen ? "Close menu" : "Open menu"}
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
