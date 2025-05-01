@@ -118,11 +118,21 @@ async function syncGoogleDriveCV() {
     if (existingCV) {
       // Update existing CV
       await db.update(resumeCV)
-        .set(cvData)
+        .set({
+          title: cvData.title,
+          fileUrl: cvData.fileUrl,
+          isActive: cvData.isActive,
+          uploadedAt: cvData.uploadedAt
+        })
         .where(eq(resumeCV.id, existingCV.id));
     } else {
       // Insert new CV
-      await db.insert(resumeCV).values(cvData);
+      await db.insert(resumeCV).values({
+        title: cvData.title,
+        fileUrl: cvData.fileUrl,
+        isActive: cvData.isActive,
+        uploadedAt: cvData.uploadedAt
+      });
     }
     
     console.log('Google Drive CV/resume synced successfully');

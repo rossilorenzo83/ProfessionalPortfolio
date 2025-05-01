@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeApiSync, stopApiSync } from "./services/apiSyncService";
 
 const app = express();
 app.use(express.json());
@@ -66,5 +67,18 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Initialize API sync service to fetch data from external APIs
+    initializeApiSync();
+  });
+  
+  // Handle process termination - cleanup resources
+  process.on('SIGINT', () => {
+    log('Shutting down server...');
+    stopApiSync();
+    server.close(() => {
+      log('Server closed');
+      process.exit(0);
+    });
   });
 })();

@@ -6,6 +6,18 @@ interface GitHubApiResponse {
     login: string;
     repositories: {
       totalCount: number;
+      nodes: {
+        name: string;
+        description: string;
+        stargazerCount: number;
+        forkCount: number;
+        url: string;
+        primaryLanguage: {
+          name: string;
+          color: string;
+        };
+        updatedAt: string;
+      }[];
     };
     starredRepositories: {
       totalCount: number;
@@ -29,20 +41,6 @@ interface GitHubApiResponse {
       percentage: number;
       color: string;
     }[];
-    repositories: {
-      nodes: {
-        name: string;
-        description: string;
-        stargazerCount: number;
-        forkCount: number;
-        url: string;
-        primaryLanguage: {
-          name: string;
-          color: string;
-        };
-        updatedAt: string;
-      }[];
-    };
   };
 }
 
@@ -202,27 +200,7 @@ async function simulateApiCall(): Promise<GitHubApiResponse> {
     user: {
       login: "johndoe",
       repositories: {
-        totalCount: 25
-      },
-      starredRepositories: {
-        totalCount: 142
-      },
-      followers: {
-        totalCount: 87
-      },
-      contributionsCollection: {
-        contributionCalendar: {
-          totalContributions: 734,
-          weeks: [] // This would contain detailed contribution data in the real API
-        }
-      },
-      topLanguages: [
-        { language: "JavaScript", percentage: 45, color: "#f1e05a" },
-        { language: "TypeScript", percentage: 30, color: "#2b7489" },
-        { language: "Python", percentage: 15, color: "#3572A5" },
-        { language: "HTML/CSS", percentage: 10, color: "#e34c26" }
-      ],
-      repositories: {
+        totalCount: 25,
         nodes: [
           {
             name: "react-dashboard-template",
@@ -261,7 +239,25 @@ async function simulateApiCall(): Promise<GitHubApiResponse> {
             updatedAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString() // 3 weeks ago
           }
         ]
-      }
+      },
+      starredRepositories: {
+        totalCount: 142
+      },
+      followers: {
+        totalCount: 87
+      },
+      contributionsCollection: {
+        contributionCalendar: {
+          totalContributions: 734,
+          weeks: [] // This would contain detailed contribution data in the real API
+        }
+      },
+      topLanguages: [
+        { language: "JavaScript", percentage: 45, color: "#f1e05a" },
+        { language: "TypeScript", percentage: 30, color: "#2b7489" },
+        { language: "Python", percentage: 15, color: "#3572A5" },
+        { language: "HTML/CSS", percentage: 10, color: "#e34c26" }
+      ]
     }
   };
 }
