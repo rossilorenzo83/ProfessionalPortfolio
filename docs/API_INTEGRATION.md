@@ -38,7 +38,27 @@ GITHUB_REFRESH_INTERVAL=86400000  # How often to sync data (in ms)
 
 ## LinkedIn Integration
 
-### Setting up LinkedIn API Access
+### Setting up LinkedIn Integration
+
+The portfolio offers two methods of LinkedIn integration:
+
+#### Option 1: Public Profile URL (Recommended)
+
+This is the simplest approach and requires no API credentials:
+
+1. Just provide your public LinkedIn profile URL
+2. The application will use this to build a profile for your portfolio
+
+In your `.env` file, set:
+
+```
+LINKEDIN_PUBLIC_PROFILE_URL=https://www.linkedin.com/in/yourusername/
+LINKEDIN_REFRESH_INTERVAL=86400000  # How often to sync data (in ms)
+```
+
+#### Option 2: LinkedIn API (Advanced)
+
+If you need more detailed LinkedIn data, you can use the API approach (requires LinkedIn API approval):
 
 1. Go to [LinkedIn Developer Portal](https://www.linkedin.com/developers/)
 2. Create a new app
@@ -48,15 +68,10 @@ GITHUB_REFRESH_INTERVAL=86400000  # How often to sync data (in ms)
    - `r_fullprofile` (for full profile details)
 4. Set up the OAuth redirect URL to your application's callback URL
 5. Once approved, note your Client ID and Client Secret
+6. Implement the OAuth 2.0 flow to authenticate with LinkedIn
+7. Store the refresh token for ongoing access
 
-### Authenticating with LinkedIn
-
-1. Implement the OAuth 2.0 flow to authenticate with LinkedIn
-2. Store the refresh token for ongoing access
-
-### Configuring LinkedIn Integration
-
-In your `.env` file, set the following variables:
+In your `.env` file, set:
 
 ```
 LINKEDIN_CLIENT_ID=your_client_id
