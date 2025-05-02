@@ -27,11 +27,18 @@ export const linkedinConfig = {
   redirectUri: process.env.LINKEDIN_REDIRECT_URI || '',
   accessToken: process.env.LINKEDIN_ACCESS_TOKEN || '',
   
+  // Public profile URL for scraping-based approach
+  publicProfileUrl: process.env.LINKEDIN_PUBLIC_PROFILE_URL || 'https://www.linkedin.com/in/lrossism/',
+  
   // Refresh interval configuration
   refreshInterval: parseInt(process.env.LINKEDIN_REFRESH_INTERVAL || DEFAULT_REFRESH_INTERVAL.toString(), 10),
   
-  // Whether to use real API (false will use simulated data)
-  useRealApi: Boolean(
+  // Whether to use real data (either API or public profile scraping)
+  // We're now enabling this by default since we have a public profile URL
+  useRealApi: true,
+  
+  // Whether to use the OAuth API vs. public profile approach
+  useOAuthApi: Boolean(
     process.env.LINKEDIN_CLIENT_ID && 
     process.env.LINKEDIN_CLIENT_SECRET && 
     process.env.LINKEDIN_ACCESS_TOKEN
