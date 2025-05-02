@@ -2,142 +2,167 @@
 
 ## Overview
 
-This portfolio website supports integration with external services to automatically pull data from:
+This portfolio website integrates with LinkedIn, GitHub, and Google Drive APIs to automatically fetch and display your professional information. This guide explains how to set up and configure these integrations.
 
-- **LinkedIn** - For professional profile information
-- **GitHub** - For code repository statistics and contributions 
-- **Google Drive** - For CV/resume retrieval
+## GitHub Integration
 
-This guide explains how to set up these integrations.
+### Setting up GitHub API Access
 
-## Configuration
+1. Go to GitHub → Settings → Developer settings → Personal access tokens → Generate new token
+2. Give your token a descriptive name (e.g., "Portfolio Website Integration")
+3. Set the expiration as needed (or select "No expiration" if allowed)
+4. Select the following scopes:
+   - `repo` (for repository statistics)
+   - `read:user` (for profile information)
+5. Click "Generate token" and copy the generated token
 
-All API keys and credentials are stored as environment variables. You should create a `.env` file in the root directory of your project based on the `.env.example` template.
+### Configuring GitHub Integration
 
-```bash
-# Copy the example file
-cp .env.example .env
-
-# Edit the file to add your API keys
-nano .env
-```
-
-## LinkedIn API Setup
-
-1. **Create a LinkedIn Developer Account**
-   - Go to [LinkedIn Developer Portal](https://developer.linkedin.com/)
-   - Sign in with your LinkedIn account
-   - Create a new application
-
-2. **Configure OAuth 2.0 Settings**
-   - Add a redirect URL (for development, use `http://localhost:5000/auth/linkedin/callback`)
-   - Request the necessary scopes:
-     - `r_liteprofile`
-     - `r_emailaddress` 
-     - `r_basicprofile`
-
-3. **Configure Environment Variables**
-   Add the following to your `.env` file:
-   ```
-   LINKEDIN_CLIENT_ID=your_client_id
-   LINKEDIN_CLIENT_SECRET=your_client_secret
-   LINKEDIN_REDIRECT_URI=your_redirect_uri
-   LINKEDIN_ACCESS_TOKEN=your_access_token
-   ```
-
-4. **Getting an Access Token**
-   For simplicity, you can generate a permanent access token for your account:
-   - Use the OAuth 2.0 flow to get an initial token
-   - Store this token in `LINKEDIN_ACCESS_TOKEN`
-
-## GitHub API Setup
-
-1. **Create a Personal Access Token**
-   - Go to [GitHub Developer Settings](https://github.com/settings/tokens)
-   - Generate a new token with the following permissions:
-     - `repo` (For repository statistics)
-     - `read:user` (For user profile information)
-     - `user:email` (For email information)
-
-2. **Configure Environment Variables**
-   Add the following to your `.env` file:
-   ```
-   GITHUB_API_KEY=your_personal_access_token
-   GITHUB_USERNAME=your_github_username
-   ```
-
-## Google Drive API Setup
-
-1. **Create a Google Cloud Project**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project
-   - Enable the Google Drive API
-
-2. **Set Up OAuth Credentials**
-   - Configure the OAuth consent screen
-   - Create OAuth client ID credentials
-   - Add authorized redirect URIs (for development, use `http://localhost:5000/auth/google/callback`)
-
-3. **Configure Environment Variables**
-   Add the following to your `.env` file:
-   ```
-   GOOGLE_CLIENT_ID=your_client_id
-   GOOGLE_CLIENT_SECRET=your_client_secret
-   GOOGLE_REDIRECT_URI=your_redirect_uri
-   GOOGLE_REFRESH_TOKEN=your_refresh_token
-   ```
-
-4. **Getting a Refresh Token**
-   To obtain a refresh token, you'll need to go through the OAuth flow once:
-   - Use the OAuth 2.0 flow to get an authorization code
-   - Exchange the code for a refresh token
-   - Store this token in `GOOGLE_REFRESH_TOKEN`
-
-## Refresh Intervals
-
-You can configure how often the application syncs data from external APIs by setting the following environment variables:
+In your `.env` file, set the following variables:
 
 ```
-# Values in milliseconds (default: 24 hours = 86400000 ms)
-GITHUB_REFRESH_INTERVAL=86400000
-LINKEDIN_REFRESH_INTERVAL=86400000
-GOOGLE_DRIVE_REFRESH_INTERVAL=86400000
+GITHUB_API_KEY=your_github_personal_access_token
+GITHUB_USERNAME=your_github_username
+GITHUB_REFRESH_INTERVAL=86400000  # How often to sync data (in ms)
 ```
 
-## Manual Refresh
+### What GitHub Data is Displayed
 
-You can manually trigger a refresh of all external API data by sending a POST request to the refresh endpoint:
+- Total repositories count
+- Star count across all repositories
+- Fork count across all repositories
+- Total contribution count
+- Contribution period (date range)
+- Most used programming languages with percentages
+- Recent repositories with descriptions, stars, and languages
 
-```bash
-curl -X POST http://localhost:5000/api/admin/refresh
+## LinkedIn Integration
+
+### Setting up LinkedIn API Access
+
+1. Go to [LinkedIn Developer Portal](https://www.linkedin.com/developers/)
+2. Create a new app
+3. Request the following permissions:
+   - `r_liteprofile` (for basic profile information)
+   - `r_emailaddress` (for email access)
+   - `r_fullprofile` (for full profile details)
+4. Set up the OAuth redirect URL to your application's callback URL
+5. Once approved, note your Client ID and Client Secret
+
+### Authenticating with LinkedIn
+
+1. Implement the OAuth 2.0 flow to authenticate with LinkedIn
+2. Store the refresh token for ongoing access
+
+### Configuring LinkedIn Integration
+
+In your `.env` file, set the following variables:
+
+```
+LINKEDIN_CLIENT_ID=your_client_id
+LINKEDIN_CLIENT_SECRET=your_client_secret
+LINKEDIN_REDIRECT_URI=your_redirect_uri
+LINKEDIN_ACCESS_TOKEN=your_access_token
+LINKEDIN_REFRESH_INTERVAL=86400000  # How often to sync data (in ms)
 ```
 
-## Troubleshooting
+### What LinkedIn Data is Displayed
 
-### API Errors
+- Profile name and headline
+- Current position
+- Work experience
+- Education information
+- Skills and endorsements
+- Profile picture
+- Location
 
-If you encounter errors with API integrations:
+## Google Drive Integration
 
-1. **Check your API keys** - Ensure they haven't expired and have the correct permissions
-2. **Check API quotas** - Some API providers have usage limits
-3. **Examine server logs** - Look for error messages in the server console output
+### Setting up Google Drive API Access
 
-### Fallback to Database
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project
+3. Enable the Google Drive API
+4. Configure the OAuth consent screen
+5. Create OAuth 2.0 credentials (Web application type)
+6. Add authorized redirect URIs
+7. Note your Client ID and Client Secret
 
-The application is designed to work even when APIs are unavailable:
+### Authenticating with Google Drive
 
-- If an API call fails, the system will use cached data from the database
-- This ensures your portfolio site remains functional even if external services are temporarily down
+1. Implement the OAuth 2.0 flow to authenticate with Google
+2. Request access to the user's Google Drive
+3. Store the refresh token for ongoing access
+
+### Configuring Google Drive Integration
+
+In your `.env` file, set the following variables:
+
+```
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URI=your_redirect_uri
+GOOGLE_REFRESH_TOKEN=your_refresh_token
+GOOGLE_DRIVE_REFRESH_INTERVAL=86400000  # How often to sync data (in ms)
+```
+
+### What Google Drive Data is Used
+
+- CV/Resume document (PDF format)
+- Document metadata (name, last updated)
+
+## Using the API Sync Service
+
+The portfolio website includes an API synchronization service that periodically fetches fresh data from the configured APIs. The service:
+
+1. Runs automatically at the configured intervals
+2. Stores the fetched data in the database
+3. Serves cached data when API requests fail
+4. Provides a manual refresh endpoint for immediate updates
+
+### Manual Refresh
+
+Administrators can manually trigger a refresh of all APIs by calling the admin endpoint:
+
+```
+POST /api/admin/refresh
+```
+
+This endpoint requires authentication with an admin token, which is configured in the `.env` file:
+
+```
+ADMIN_TOKEN=your_secure_admin_token
+```
+
+## Troubleshooting API Integrations
+
+### GitHub Integration Issues
+
+- **Error: Bad credentials**: Your GitHub token is invalid or has expired
+- **Rate limit exceeded**: You've made too many requests to the GitHub API
+
+### LinkedIn Integration Issues
+
+- **Invalid access token**: Your LinkedIn token has expired
+- **Invalid redirect URI**: The redirect URI doesn't match what's configured in LinkedIn
+
+### Google Drive Integration Issues
+
+- **Invalid credentials**: Your Google API credentials are invalid
+- **Token expired**: Your refresh token has expired and needs to be renewed
 
 ## Security Considerations
 
-1. **Never commit `.env` to version control** - It contains sensitive credentials
-2. **Rotate API keys periodically** - For improved security
-3. **Use the minimum required permissions** - Follow the principle of least privilege
+- Never commit API keys, tokens, or credentials to your repository
+- Use environment variables to store sensitive information
+- Regularly rotate access tokens
+- Set appropriate scopes for API access (principle of least privilege)
 
----
+## Fallback Behavior
 
-For further assistance, refer to the official documentation for each service:
-- [LinkedIn API Documentation](https://developer.linkedin.com/docs)
-- [GitHub API Documentation](https://docs.github.com/en/rest)
-- [Google Drive API Documentation](https://developers.google.com/drive/api/v3/about-sdk)
+If API integrations fail or are not configured, the application will:
+
+1. Use cached data from the database if available
+2. Display a placeholder or message indicating the integration is not configured
+
+This ensures the portfolio continues to function even if external APIs are unavailable.
